@@ -5,6 +5,9 @@
 import autograd.numpy as np
 import autograd.numpy.random as npr
 
+import os.path, sys
+sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
+
 from neuralfingerprint import load_data
 from neuralfingerprint import build_morgan_deep_net
 from neuralfingerprint import build_conv_deep_net

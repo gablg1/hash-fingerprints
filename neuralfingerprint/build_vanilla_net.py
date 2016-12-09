@@ -2,6 +2,7 @@ import autograd.numpy as np
 
 from util import memoize, WeightsParser
 from rdkit_utils import smiles_to_fps
+import build_convnet
 
 
 def batch_normalize(activations):
@@ -91,6 +92,8 @@ def build_fingerprint_deep_net(net_params, fingerprint_func, fp_parser, fp_l2_pe
     return loss_fun, pred_fun, combined_parser
 
 
+
+
 def build_morgan_fingerprint_fun(fp_length=512, fp_radius=4):
 
     def fingerprints_from_smiles(weights, smiles):
@@ -105,7 +108,7 @@ def build_morgan_fingerprint_fun(fp_length=512, fp_radius=4):
 
 def build_morgan_deep_net(fp_length, fp_depth, net_params):
     empty_parser = WeightsParser()
-    morgan_fp_func = build_morgan_fingerprint_fun(fp_length, fp_depth)
+    morgan_fp_func = build_convnet.build_custom_morgan_fingerprint_fun(fp_length, fp_depth)
     return build_fingerprint_deep_net(net_params, morgan_fp_func, empty_parser, 0)
 
 def build_mean_predictor(loss_func):
