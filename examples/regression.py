@@ -10,6 +10,7 @@ sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.par
 
 from neuralfingerprint import load_data
 from neuralfingerprint import build_morgan_deep_net
+from neuralfingerprint import build_mymorgan_deep_net
 from neuralfingerprint import build_conv_deep_net
 from neuralfingerprint import normalize_array, adam
 from neuralfingerprint import build_batched_grad
@@ -92,6 +93,16 @@ def main():
         print "-" * 80
         return rmse(val_preds, val_targets)
 
+    def run_mymorgan_experiment():
+        loss_fun, pred_fun, net_parser = \
+            build_mymorgan_deep_net(model_params['fp_length'],
+                                  model_params['fp_depth'], vanilla_net_params)
+        num_weights = len(net_parser)
+        predict_func, trained_weights, conv_training_curve = \
+            train_nn(pred_fun, loss_fun, num_weights, train_inputs, train_targets,
+                     train_params, validation_smiles=val_inputs, validation_raw_targets=val_targets)
+        return print_performance(predict_func)
+
     def run_morgan_experiment():
         loss_fun, pred_fun, net_parser = \
             build_morgan_deep_net(model_params['fp_length'],
@@ -119,10 +130,10 @@ def main():
     print
     print "Starting Morgan fingerprint experiment..."
     test_loss_morgan = run_morgan_experiment()
-    print "Starting neural fingerprint experiment..."
-    test_loss_neural = run_conv_experiment()
+    print "Starting MyMorgan fingerprint experiment..."
+    test_loss_mymorgan = run_mymorgan_experiment()
     print
-    print "Morgan test RMSE:", test_loss_morgan, "Neural test RMSE:", test_loss_neural
+    print "Morgan test RMSE:", test_loss_morgan, "MyMorgan test RMSE:", test_loss_neural
 
 if __name__ == '__main__':
     main()

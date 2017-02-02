@@ -139,7 +139,7 @@ def build_conv_deep_net(conv_params, net_params, fp_l2_penalty=0.0):
     return build_fingerprint_deep_net(net_params, conv_fp_func, conv_parser, fp_l2_penalty)
 
 
-def build_custom_morgan_fingerprint_fun(fp_length=512, fp_radius=4):
+def build_mymorgan_fingerprint_fun(fp_length=512, fp_radius=4):
 
     def fingerprints_from_smiles(weights, smiles):
         # Morgan fingerprints don't use weights.
@@ -147,73 +147,11 @@ def build_custom_morgan_fingerprint_fun(fp_length=512, fp_radius=4):
 
     @memoize # This wrapper function exists because tuples can be hashed, but arrays can't.
     def fingerprints_from_smiles_tuple(smiles_tuple):
-        array_rep = array_rep_from_smiles(smiles_tuple)
-
-        def morgan_fp(i):
-            fp = [0 for _ in range(fp_length)]
-            for layer in range(fp_radius):
-                for atom in array_rep['atom_list'][i]:
-                	neighbor_features = [array_rep['atom_features'][n] for n in array_rep[('atom_neighbors', layer)]]
-                	atom_features = array_rep['atom_features'][atom]
-        morgan_fp(0)
-
-
         return smiles_to_fps(smiles_tuple, fp_length, fp_radius)
 
-    def update_layer(weights, layer, atom_features, bond_features, array_rep, normalize=False):
-        self_activations = np.dot(atom_features, layer_self_weights)
-        neighbour_activations = matmult_neighbors(
-            array_rep, atom_features, bond_features, get_weights_func)
-
-
-        total_activations = neighbour_activations + self_activations + layer_bias
-        if normalize:
-            total_activations = batch_normalize(total_activations)
-
-        # total_activations.shape == neighbour_activations.shape == (1370, 20)
-        return activation_function(total_activations)
-
-    def output_layer_fun_and_atom_activations(weights, smiles):
-        """Computes layer-wise convolution, and returns a fixed-size output."""
-
-        array_rep = array_rep_from_smiles(tuple(smiles))
-        atom_features = array_rep['atom_features']
-        bond_features = array_rep['bond_features']
-
-        all_layer_fps = []
-        atom_activations = []
-        def write_to_fingerprint(atom_features, layer):
-            cur_out_weights = parser.get(weights, ('layer output weights', layer))
-            cur_out_bias    = parser.get(weights, ('layer output bias', layer))
-            atom_outputs = softmax(cur_out_bias + np.dot(atom_features, cur_out_weights), axis=1)
-            atom_activations.append(atom_outputs)
-            # Sum over all atoms within a moleclue:
-            # atom_features.shape == (1370, 62)
-            # atom_outputs.shape == atom_activations.shape == (1370, 50)
-            import pdb; pdb.set_trace()
-            layer_output = sum_and_stack(atom_outputs, array_rep['atom_list'])
-            all_layer_fps.append(layer_output)
-
-        num_layers = len(num_hidden_features)
-        for layer in xrange(num_layers):
-            write_to_fingerprint(atom_features, layer)
-            atom_features = update_layer(weights, layer, atom_features, bond_features, array_rep,
-                                         normalize=normalize)
-        write_to_fingerprint(atom_features, num_layers)
-        # sum(all_layer_fps).shape == (100, 50)
-        return sum(all_layer_fps), atom_activations, array_rep
-
-    def output_layer_fun(weights, smiles):
-        output, _, _ = output_layer_fun_and_atom_activations(weights, smiles)
-        return output
-
-    def compute_atom_activations(weights, smiles):
-        _, atom_activations, array_rep = output_layer_fun_and_atom_activations(weights, smiles)
-        return atom_activations, array_rep
-
-    if return_atom_activations:
-        return output_layer_fun, parser, compute_atom_activations
-    else:
-        return output_layer_fun, parser
-
     return fingerprints_from_smiles
+
+def build_mymorgan_deep_net(fp_length, fp_depth, net_params):
+    empty_parser = WeightsParser()
+    morgan_fp_func = build_morgan_fingerprint_fun(fp_length, fp_depth)
+    return build_fingerprint_deep_net(net_params, morgan_fp_func, empty_parser, 0)
