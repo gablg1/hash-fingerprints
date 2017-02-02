@@ -108,7 +108,7 @@ def build_morgan_fingerprint_fun(fp_length=512, fp_radius=4):
 
 def build_morgan_deep_net(fp_length, fp_depth, net_params):
     empty_parser = WeightsParser()
-    morgan_fp_func = build_convnet.build_custom_morgan_fingerprint_fun(fp_length, fp_depth)
+    morgan_fp_func = build_morgan_fingerprint_fun(fp_length, fp_depth)
     return build_fingerprint_deep_net(net_params, morgan_fp_func, empty_parser, 0)
 
 def build_mean_predictor(loss_func):

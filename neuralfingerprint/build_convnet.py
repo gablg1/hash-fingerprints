@@ -1,7 +1,7 @@
 import autograd.numpy as np
 from autograd.scipy.misc import logsumexp
 
-from rdkit_utils import smiles_to_fps
+from rdkit_utils import smiles_to_myfps
 from features import num_atom_features, num_bond_features
 from util import memoize, WeightsParser
 from mol_graph import graph_from_smiles_tuple, degrees
@@ -147,11 +147,11 @@ def build_mymorgan_fingerprint_fun(fp_length=512, fp_radius=4):
 
     @memoize # This wrapper function exists because tuples can be hashed, but arrays can't.
     def fingerprints_from_smiles_tuple(smiles_tuple):
-        return smiles_to_fps(smiles_tuple, fp_length, fp_radius)
+        return smiles_to_myfps(smiles_tuple, fp_length, fp_radius)
 
     return fingerprints_from_smiles
 
 def build_mymorgan_deep_net(fp_length, fp_depth, net_params):
     empty_parser = WeightsParser()
-    morgan_fp_func = build_morgan_fingerprint_fun(fp_length, fp_depth)
+    morgan_fp_func = build_mymorgan_fingerprint_fun(fp_length, fp_depth)
     return build_fingerprint_deep_net(net_params, morgan_fp_func, empty_parser, 0)

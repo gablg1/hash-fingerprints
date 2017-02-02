@@ -127,13 +127,13 @@ def main():
         return rmse(test_predictions, test_targets)
 
     print "Task params", task_params
-    print
-    print "Starting Morgan fingerprint experiment..."
-    test_loss_morgan = run_morgan_experiment()
     print "Starting MyMorgan fingerprint experiment..."
     test_loss_mymorgan = run_mymorgan_experiment()
     print
-    print "Morgan test RMSE:", test_loss_morgan, "MyMorgan test RMSE:", test_loss_neural
+    print "Starting Morgan fingerprint experiment..."
+    test_loss_morgan = run_morgan_experiment()
+    print
+    print "Morgan test RMSE:", test_loss_morgan, "MyMorgan test RMSE:", test_loss_mymorgan
 
 if __name__ == '__main__':
     main()
