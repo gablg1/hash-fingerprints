@@ -126,6 +126,8 @@ def main():
         test_predictions = predict_func(test_inputs)
         return rmse(test_predictions, test_targets)
 
+    #test_loss_neural = run_conv_experiment()
+
     print "Task params", task_params
     print "Starting MyMorgan fingerprint experiment..."
     test_loss_mymorgan = run_mymorgan_experiment()

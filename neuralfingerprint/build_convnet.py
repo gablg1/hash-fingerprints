@@ -30,7 +30,6 @@ def matmult_neighbors(array_rep, atom_features, bond_features, get_weights):
             summed_neighbors = np.sum(stacked_neighbors, axis=1)
             activations = np.dot(summed_neighbors, get_weights(degree))
             activations_by_degree.append(activations)
-            import pdb; pdb.set_trace()
     # This operation relies on atoms being sorted by degree,
     # in Node.graph_from_smiles_tuple()
     return np.concatenate(activations_by_degree, axis=0)
@@ -43,7 +42,6 @@ def build_convnet_fingerprint_fun(num_hidden_features=[100, 100], fp_length=512,
                                   return_atom_activations=False):
     """Sets up functions to compute convnets over all molecules in a minibatch together."""
 
-    import pdb; pdb.set_trace()
     # Specify weight shapes.
     parser = WeightsParser()
     all_layer_sizes = [num_atom_features()] + num_hidden_features
@@ -92,7 +90,6 @@ def build_convnet_fingerprint_fun(num_hidden_features=[100, 100], fp_length=512,
             # Sum over all atoms within a moleclue:
             # atom_features.shape == (1370, 62)
             # atom_outputs.shape == atom_activations.shape == (1370, 50)
-            import pdb; pdb.set_trace()
             layer_output = sum_and_stack(atom_outputs, array_rep['atom_list'])
             all_layer_fps.append(layer_output)
 
